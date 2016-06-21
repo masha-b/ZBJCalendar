@@ -27,7 +27,17 @@
     if (self) {
         self.backgroundColor = [UIColor whiteColor];
         [self addSubview:self.collectionView];
-        [self addSubview:self.weekView];
+        
+        self.selectionMode = ZBJSelectionModeRange;
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        self.backgroundColor = [UIColor whiteColor];
+        [self addSubview:self.collectionView];
         
         self.selectionMode = ZBJSelectionModeRange;
     }
@@ -37,18 +47,8 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    // weekViewFrame
-    if (self.weekViewHeight > 0) {
-        self.weekView.frame = CGRectMake(0, 0, CGRectGetWidth(self.frame), self.weekViewHeight);
-    } else {
-        self.weekView.frame = CGRectMake(0, 0, CGRectGetWidth(self.frame), 46);
-    }
+    self.collectionView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
     
-    // collecitonViewFrame
-    self.collectionView.frame = CGRectMake(0,
-                                           CGRectGetMaxY(self.weekView.frame),
-                                           CGRectGetWidth(self.frame),
-                                           CGRectGetHeight(self.frame) - CGRectGetMaxY(self.weekView.frame));
     
     // cellWith
     NSInteger collectionContentWidth = CGRectGetWidth(self.collectionView.frame) - self.contentInsets.left - self.contentInsets.right;
@@ -156,28 +156,26 @@
     [self.collectionView reloadItemsAtIndexPaths:indexPaths];
 }
 
+- (void)reloadCellsFromStartDate:(NSDate *)startDate toEndDate:(NSDate *)endDate {
+    
+    NSMutableArray *indexPaths = [NSMutableArray new];
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents *componentsStart = [calendar components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:startDate];
+     NSDateComponents *componentEnd = [calendar components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:endDate];
+    
+    while ( ! ((componentsStart.day == componentEnd.day) && (componentsStart.month == componentEnd.month) && (componentsStart.year == componentEnd.year))) {
+        
+        NSIndexPath *indexPath = [NSDate indexPathAtDate:[calendar dateFromComponents:componentsStart] firstDate:[calendar dateFromComponents:componentsStart]];
+        [indexPaths addObject:indexPath];
+        componentsStart.day +=1;
+    }
+    
+    [self.collectionView reloadItemsAtIndexPaths:indexPaths];
+}
+
 #pragma mark - private methods
 - (NSDate *)dateForCollectionView:(UICollectionView *)collection atIndexPath:(NSIndexPath *)indexPath {
-    NSDate *date = nil;
-    
-    // if headStyle is `ZBJCalendarViewHeadStyleCurrentWeek`, the first month is special
-    if (self.headStyle == ZBJCalendarViewHeadStyleCurrentWeek && indexPath.section == 0) {
-        NSDate *firstDay = [self.firstDate firstDateOfWeek];
-        NSDate *lastDateOfMonth = [self.firstDate lastDateOfMonth];
-        NSInteger items = [NSDate numberOfNightsFromDate:firstDay toDate:lastDateOfMonth];
-        if (indexPath.row > items) {
-        } else {
-            NSCalendar *calendar = [NSDate gregorianCalendar];
-            NSDateComponents *components = [calendar components:NSCalendarUnitMonth | NSCalendarUnitDay fromDate:firstDay];
-            [components setDay:indexPath.row];
-            [components setMonth:indexPath.section];
-            date = [calendar dateByAddingComponents:components toDate:firstDay options:0];
-        }
-    } else { // normal logic
-        date = [NSDate dateAtIndexPath:indexPath firstDate:self.firstDate];
-    }
-
-    return date;
+    return [NSDate dateAtIndexPath:indexPath firstDate:self.firstDate];
 }
 
 #pragma mark UICollectionViewDataSource
@@ -206,16 +204,6 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
-    // if headStyle is `ZBJCalendarViewHeadStyleCurrentWeek`, the first month is special
-    if (self.headStyle == ZBJCalendarViewHeadStyleCurrentWeek && section == 0) {
-        NSInteger weekDay = [self.firstDate weekday];
-        NSDate *lastDateOfMonth = [self.firstDate lastDateOfMonth];
-        NSInteger lastDateOfMonthWeekDay = [lastDateOfMonth weekday];
-        NSInteger items = weekDay + [NSDate numberOfNightsFromDate:self.firstDate toDate:lastDateOfMonth] + 7 - lastDateOfMonthWeekDay;
-        return items;
-    }
-    
-    // normal logic
     NSDate *firstDay = [NSDate dateForFirstDayInSection:section firstDate:self.firstDate];
     NSInteger weekDay = [firstDay weekday] -1;
     NSInteger items =  weekDay + [NSDate numberOfDaysInMonth:firstDay];

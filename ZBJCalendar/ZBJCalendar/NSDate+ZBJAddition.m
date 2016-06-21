@@ -120,7 +120,7 @@ const char * const JmoLocaleStoreKey = "jmo.locale";
 - (NSInteger)weekday {
     NSCalendar *calendar = [self.class gregorianCalendar];
     NSDateComponents *compoents = [calendar components:NSCalendarUnitWeekday fromDate:self];
-    return compoents.weekday;
+    return ((compoents.weekday+5)%7)+1;
 }
 
 - (BOOL)isToday {

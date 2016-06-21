@@ -26,13 +26,13 @@ typedef CF_ENUM(NSInteger, ZBJCalendarViewHeadStyle) {
  * `ZBJCalendarView` provide a convenience way to write a calendar view. The concept of `ZBJCalendarView` is `UICollectionView` or `UITableView`, some properties contains `dataSource` which to used to custom cells or headers and `delegate` which used to handle the display and behaviour of the day cells.
  *
  * The structure of `ZBJCalendarView` is simple, it contains a `weekView` as public and a `collectionView` as private.
-    - The `weekView` is an instance of `ZBJCalendarWeekView` that you can implements the methods in `dataSource` about week view.
-    - The `collectionView` is an instance of `UICollectionView`, the UICollectionView cell correspond the day of the calendar.
+ - The `weekView` is an instance of `ZBJCalendarWeekView` that you can implements the methods in `dataSource` about week view.
+ - The `collectionView` is an instance of `UICollectionView`, the UICollectionView cell correspond the day of the calendar.
  *
  * The usage of `ZBJCalendarView` is simple, is familiar like `UITableView` or `UICollectionView`
-    - first, you should point the `firstDate` and `lastDate`, 
-    - second, like `UITableView` or `UICollectionView`, it must registe a cell through `- (void)registerCellClass:(id)clazz withReuseIdentifier:(NSString *)identifier;`, 
-    - finally, conform the `ZBJCalendarDataSource` protocol and must implement `- (void)calendarView:(ZBJCalendarView *)calendarView configureCell:(id)cell forDate:(NSDate *)date;` as `@required`.
+ - first, you should point the `firstDate` and `lastDate`,
+ - second, like `UITableView` or `UICollectionView`, it must registe a cell through `- (void)registerCellClass:(id)clazz withReuseIdentifier:(NSString *)identifier;`,
+ - finally, conform the `ZBJCalendarDataSource` protocol and must implement `- (void)calendarView:(ZBJCalendarView *)calendarView configureCell:(id)cell forDate:(NSDate *)date;` as `@required`.
  *
  */
 @interface ZBJCalendarView : UIView
@@ -49,8 +49,8 @@ typedef CF_ENUM(NSInteger, ZBJCalendarViewHeadStyle) {
 
 /**
  *  The tow properties `firstDate` and `lastDate` are necessary for calendar.
-    - `firstDate` is the start date of the calendar
-    - `lastDate` is the end date of the calendar
+ - `firstDate` is the start date of the calendar
+ - `lastDate` is the end date of the calendar
  */
 @property (nonatomic, strong) NSDate *firstDate;
 @property (nonatomic, strong) NSDate *lastDate;
@@ -93,8 +93,8 @@ typedef CF_ENUM(NSInteger, ZBJCalendarViewHeadStyle) {
 @property (nonatomic, assign) CGFloat sectionFooterHeight;
 /**
  * In calendar view, the cell width is calculated as by this expression, `cellWidth = (calendar.width - contentInsets.left - contentInsets.right) / 7`
-   cellWidth is variable with the screen changing,
-   So, we define a scale to calculate cellHeight is convenient, `cellScale = cellHeight / cellWidth`.
+ cellWidth is variable with the screen changing,
+ So, we define a scale to calculate cellHeight is convenient, `cellScale = cellHeight / cellWidth`.
  */
 @property (nonatomic, assign) CGFloat cellScale;
 
@@ -123,9 +123,11 @@ typedef CF_ENUM(NSInteger, ZBJCalendarViewHeadStyle) {
 - (id)cellAtDate:(NSDate *)date;
 
 - (void)reloadCellsAtDates:(NSSet<NSDate *> *)dates;
+
+- (void)reloadCellsFromStartDate:(NSDate *)startDate toEndDate:(NSDate *)endDate;
 @end
 /**
- *  This protocol represents the cell data model object. 
+ *  This protocol represents the cell data model object.
  *  As such, it supplies the cell's information about appearance and data.
  */
 @protocol ZBJCalendarDataSource <NSObject>

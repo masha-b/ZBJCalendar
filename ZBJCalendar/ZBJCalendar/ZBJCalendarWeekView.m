@@ -22,20 +22,22 @@
         
         self.backgroundColor = [UIColor whiteColor];
         NSCalendar *calendar = [NSDate gregorianCalendar];
+        
+        NSDateComponents *components = [[NSDateComponents alloc] init];
+        components.calendar = calendar;
+        
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
         dateFormatter.calendar = calendar;
-        NSArray *weekdaySymbols = nil;
         
-        weekdaySymbols = [dateFormatter veryShortWeekdaySymbols];
-
-        NSMutableArray *adjustedSymbols = [NSMutableArray arrayWithArray:weekdaySymbols];
-        for (NSInteger index = 0; index < (1 - calendar.firstWeekday + weekdaySymbols.count + 1); index++) {
-            NSString *lastObject = [adjustedSymbols lastObject];
-            [adjustedSymbols removeLastObject];
-            [adjustedSymbols insertObject:lastObject atIndex:0];
+        if (self.adjustedSymbols == nil) {
+            self.adjustedSymbols = [[NSMutableArray alloc] init];
+        }
+        for (int day = 1; day <= 7; day++) {
+            components.day = day;
+            dateFormatter.dateFormat = @"E";
+            [self.adjustedSymbols addObject:[dateFormatter stringFromDate:components.date]];
         }
         
-        self.adjustedSymbols = adjustedSymbols;
         
         for (int i = 0 ; i < self.adjustedSymbols.count; i++) {
             CGFloat w = CGRectGetWidth(self.frame)/7;
