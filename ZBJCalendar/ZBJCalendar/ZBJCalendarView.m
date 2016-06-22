@@ -12,7 +12,7 @@
 
 @interface ZBJCalendarView () <UICollectionViewDataSource, UICollectionViewDelegate, ZBJCalendarWeekViewDelegate>
 
-@property (nonatomic, strong) UICollectionView *collectionView;
+
 @property (nonatomic, strong) NSString *cellIdentifier;
 @property (nonatomic, strong) NSString *sectionHeaderIdentifier;
 @property (nonatomic, strong) NSString *sectionFooterIdentifier;
@@ -25,10 +25,7 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        self.backgroundColor = [UIColor whiteColor];
-        [self addSubview:self.collectionView];
-        
-        self.selectionMode = ZBJSelectionModeRange;
+        [self makeSubviews];
     }
     return self;
 }
@@ -36,24 +33,39 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        self.backgroundColor = [UIColor whiteColor];
-        [self addSubview:self.collectionView];
-        
-        self.selectionMode = ZBJSelectionModeRange;
+        [self makeSubviews];
     }
     return self;
+}
+
+- (void)makeSubviews {
+    
+    self.backgroundColor = [UIColor whiteColor];
+    
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumLineSpacing = 0;
+    layout.minimumInteritemSpacing = 0;
+    
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+    _collectionView.backgroundColor = [UIColor whiteColor];
+    _collectionView.dataSource = self;
+    _collectionView.delegate = self;
+    
+    [self addSubview:_collectionView];
+    
+    self.selectionMode = ZBJSelectionModeRange;
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    self.collectionView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    _collectionView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
     
     
     // cellWith
-    NSInteger collectionContentWidth = CGRectGetWidth(self.collectionView.frame) - self.contentInsets.left - self.contentInsets.right;
+    NSInteger collectionContentWidth = CGRectGetWidth(_collectionView.frame) - self.contentInsets.left - self.contentInsets.right;
     NSInteger residue = collectionContentWidth % 7;
-
+    
     CGFloat cellWidth = collectionContentWidth / 7.0;
     if (residue != 0) {
         
@@ -69,9 +81,9 @@
         UIEdgeInsets inset = UIEdgeInsetsMake(self.contentInsets.top, newPadding, self.contentInsets.bottom, newPadding);
         self.contentInsets = inset;
     }
-    self.collectionView.contentInset = self.contentInsets;
+    _collectionView.contentInset = self.contentInsets;
     
-    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)_collectionView.collectionViewLayout;
     
     // cellHeight
     if (self.cellScale > 0) {
@@ -79,31 +91,31 @@
     } else {
         layout.itemSize = CGSizeMake(cellWidth, cellWidth);
     }
-
-    self.collectionView.collectionViewLayout = layout;
+    
+    _collectionView.collectionViewLayout = layout;
 }
 
 #pragma mark - public method
 - (void)registerCellClass:(id)clazz withReuseIdentifier:(NSString *)identifier {
     self.cellIdentifier = identifier;
-    [self.collectionView registerClass:clazz forCellWithReuseIdentifier:identifier];
+    [_collectionView registerClass:clazz forCellWithReuseIdentifier:identifier];
 }
 
 - (void)registerSectionHeader:(id)clazz withReuseIdentifier:(NSString *)identifier{
     self.sectionHeaderIdentifier = identifier;
-    [self.collectionView registerClass:clazz forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:identifier];
+    [_collectionView registerClass:clazz forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:identifier];
 }
 
 - (void)registerSectionFooter:(id)clazz withReuseIdentifier:(NSString *)identifier{
     self.sectionFooterIdentifier = identifier;
-    [self.collectionView registerClass:clazz forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:identifier];
+    [_collectionView registerClass:clazz forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:identifier];
 }
 
 - (void)setContentInsets:(UIEdgeInsets)contentInsets {
     _contentInsets = contentInsets;
     self.weekView.contentInsets = _contentInsets;
-    self.collectionView.contentInset = _contentInsets;
-    self.collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(_contentInsets.top, 0, _contentInsets.bottom, 0);
+    _collectionView.contentInset = _contentInsets;
+    _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(_contentInsets.top, 0, _contentInsets.bottom, 0);
 }
 
 - (void)setWeekViewHeight:(CGFloat)weekViewHeight {
@@ -114,23 +126,23 @@
 - (void)setMinimumLineSpacing:(CGFloat)minimumLineSpacing {
     _minimumLineSpacing = minimumLineSpacing;
     
-    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)_collectionView.collectionViewLayout;
     if (_minimumLineSpacing > 0) {
         layout.minimumLineSpacing = _minimumLineSpacing;
     } else {
         layout.minimumLineSpacing = 0;
     }
-    self.collectionView.collectionViewLayout = layout;
+    _collectionView.collectionViewLayout = layout;
 }
 
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
-    self.collectionView.backgroundColor = backgroundColor;
+    _collectionView.backgroundColor = backgroundColor;
     self.weekView.backgroundColor = backgroundColor;
 }
 
 - (void)setAllowsSelection:(BOOL)allowsSelection {
     _allowsSelection = allowsSelection;
-    self.collectionView.allowsSelection = _allowsSelection;
+    _collectionView.allowsSelection = _allowsSelection;
 }
 
 - (void)setDataSource:(id<ZBJCalendarDataSource>)dataSource {
@@ -139,12 +151,12 @@
 }
 
 - (void)reloadData {
-    [self.collectionView reloadData];
+    [_collectionView reloadData];
 }
 
 - (id)cellAtDate:(NSDate *)date {
     NSIndexPath *indexPath = [NSDate indexPathAtDate:date firstDate:self.firstDate];
-    return [self.collectionView cellForItemAtIndexPath:indexPath];
+    return [_collectionView cellForItemAtIndexPath:indexPath];
 }
 
 - (void)reloadCellsAtDates:(NSSet<NSDate *> *)dates {
@@ -153,7 +165,7 @@
         NSIndexPath *indexPath = [NSDate indexPathAtDate:date firstDate:self.firstDate];
         [indexPaths addObject:indexPath];
     }
-    [self.collectionView reloadItemsAtIndexPaths:indexPaths];
+    [_collectionView reloadItemsAtIndexPaths:indexPaths];
 }
 
 - (void)reloadCellsFromStartDate:(NSDate *)startDate toEndDate:(NSDate *)endDate {
@@ -161,7 +173,7 @@
     NSMutableArray *indexPaths = [NSMutableArray new];
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSDateComponents *componentsStart = [calendar components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:startDate];
-     NSDateComponents *componentEnd = [calendar components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:endDate];
+    NSDateComponents *componentEnd = [calendar components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:endDate];
     
     while ( ! ((componentsStart.day == componentEnd.day) && (componentsStart.month == componentEnd.month) && (componentsStart.year == componentEnd.year))) {
         
@@ -170,7 +182,7 @@
         componentsStart.day +=1;
     }
     
-    [self.collectionView reloadItemsAtIndexPaths:indexPaths];
+    [_collectionView reloadItemsAtIndexPaths:indexPaths];
 }
 
 #pragma mark - private methods
@@ -197,7 +209,7 @@
         }
         return footerView;
     }
-   
+    
     return NULL;
 }
 
@@ -224,7 +236,7 @@
     if (self.dataSource && [self.dataSource respondsToSelector:@selector(calendarView:configureCell:forDate:)]) {
         [self.dataSource calendarView:self configureCell:cell forDate:date];
     }
-   
+    
     return cell;
 }
 
@@ -234,7 +246,7 @@
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     NSDate *date = [self dateForCollectionView:collectionView atIndexPath:indexPath];
- 
+    
     if (self.delegate && [self.delegate respondsToSelector:@selector(calendarView:shouldSelectDate:)]) {
         return [self.delegate calendarView:self shouldSelectDate:date];
     }
@@ -248,7 +260,7 @@
 
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-   
+    
     NSDate *date = [self dateForCollectionView:collectionView atIndexPath:indexPath];
     
     if (self.delegate && [self.delegate respondsToSelector:@selector(calendarView:didSelectDate:ofCell:)]) {
@@ -296,37 +308,20 @@
     return _weekView;
 }
 
-
-
-- (UICollectionView *)collectionView {
-    if (!_collectionView) {
-        UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-        layout.minimumLineSpacing = 0;
-        layout.minimumInteritemSpacing = 0;
-        
-        _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
-        _collectionView.backgroundColor = [UIColor whiteColor];
-        _collectionView.dataSource = self;
-        _collectionView.delegate = self;
-    }
-    return _collectionView;
-}
-
-
 #pragma mark - setters
 - (void)setSelectionMode:(ZBJSelectionMode)selectionMode {
     _selectionMode = selectionMode;
     switch (_selectionMode) {
         case ZBJSelectionModeSingle: {
-            self.collectionView.allowsSelection = YES;
+            _collectionView.allowsSelection = YES;
             break;
         }
         case ZBJSelectionModeRange: {
-            self.collectionView.allowsMultipleSelection = YES;
+            _collectionView.allowsMultipleSelection = YES;
             break;
         }
         default: {
-            self.collectionView.allowsSelection = NO;
+            _collectionView.allowsSelection = NO;
             break;
         }
     }

@@ -62,6 +62,12 @@ typedef CF_ENUM(NSInteger, ZBJCalendarViewHeadStyle) {
 @property (nonatomic, strong) ZBJCalendarWeekView *weekView;
 
 /**
+ *  `collectionView` If needed to manage.
+ *  It's a public property that means you can control and manage as you like.
+ */
+@property (nonatomic, strong) UICollectionView *collectionView;
+
+/**
  *  `ZBJCalendarView` has three selection mode, it's defined as a enum `ZBJSelectionMode`.
  *  The concept of selection mode is to control the `collectionView`'s `allowsSelection` and `allowsMultipleSelection`.
  *  Default value is `ZBJSelectionModeRange`
