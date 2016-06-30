@@ -43,13 +43,11 @@
     NSDateComponents *components = [calendar components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:date];
     
     NSDateComponents *firstDateComponents = [calendar components:NSCalendarUnitYear | NSCalendarUnitMonth fromDate:firstDate];
-    
     NSDate *firstDateOfMonth = [date firstDateOfMonth];
-    NSDateComponents *firstDateOfMonthComponents = [calendar components:NSCalendarUnitWeekday fromDate:firstDateOfMonth];
     
     NSInteger section = (components.year - firstDateComponents.year) * 12 + components.month - firstDateComponents.month;
-    NSInteger index = firstDateOfMonthComponents.weekday + components.day - 2;
-
+    NSInteger index = [firstDateOfMonth weekday] + components.day - 2;
+    
     return [NSIndexPath indexPathForItem:index inSection:section];
 }
 
